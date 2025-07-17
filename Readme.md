@@ -4,15 +4,30 @@
 https://minikube.sigs.k8s.io/docs/start
 
 ### Management
+```
 minikube start
-minkube status
+minikube status
 minikube stop
+minikube pause
+
+minikube dashboard
+
+minikube addons list
+minikube addons enable metrics-server
+
+minikube delete --all
+```
 
 ### Docker in docker
 ```
-docker ps           # => minikube container
+docker ps           # minikube container
 docker exec -it minikube bash
-docker ps
+docker ps           # containers inside minikube
+```
+
+Settings to address directly dind:
+```
+minikube docker-env
 ```
 
 ## CLI: kubectl
@@ -135,8 +150,89 @@ kubectl port-forward service/echosolo-service 8082:8082
 ```
 kubectl expose deployment echomirror --type=LoadBalancer --port 8080  --name echomirror-service
 
-minikube tunnel
+minikube tunnel     # only for 'LoadBalancer' services 
 kubectl get svc
 ```
+
+## Supervision
+- Enable metrics
+```
+minikube addons enable metrics-server
+```
+
+- GUI: cf dashboard
+
+- CLI:
+```
+kubectl top pods
+```
+
+## Namespaces
+
+
+## Yaml deployment
+
+### Database (1 pod):
+```
+kubectl apply -f .\config\db.deployment.yml
+kubectl get po -n blockbuster                    #  CrashLoopBackOff  
+kubectl logs -n blockbuster moviedb              #  missing  POSTGRES_PASSWORD
+```
+
+Fix yaml and reapply it:
+
+```
+kubectl delete pod moviedb -n blockbuster
+kubectl apply -f config/db.deployment.yml
+```
+
+Check the pod:
+```
+kubectl exec -it -n blockbuster moviedb -- bash  
+    psql -U postgres
+        \l
+        \d
+
+kubectl exec -it -n blockbuster moviedb -- psql -U postgres
+```
+
+- Init DDL+Data with copy:
+```
+kubectl cp -n blockbuster sql/01-tables.sql moviedb:/tmp
+kubectl exec -it -n blockbuster moviedb -- ls -l /tmp
+kubectl exec -it -n blockbuster moviedb -- psql -U postgres -f /tmp/01-tables.sql
+```
+
+- Init DDL+Data with config map (size limit !):
+```
+kubectl create cm db-sql-init -n blockbuster --from-file sql/01-tables.sql
+kubectl create cm db-sql-init -n blockbuster --from-file sql
+
+kubectl get cm -n blockbuster
+kubectl describe cm db-sql-init -n blockbuster
+kubectl get cm db-sql-init -n blockbuster -o jsonpath='{.data}'
+```
+
+- Config map from env file
+```
+kubectl create cm db-env -n blockbuster --from-env-file .env-db
+kubectl get cm db-env -n blockbuster -o jsonpath='{.data}'
+```
+
+- Config map from args
+```
+kubectl create cm db-env2 -n blockbuster --from-literal POSTGRES_DB=dbmovie
+kubectl get cm db-env -n blockbuster -o jsonpath='{.data}'
+```
+
+
+
+
+
+
+
+
+
+
 
 
