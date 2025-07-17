@@ -225,6 +225,31 @@ kubectl create cm db-env2 -n blockbuster --from-literal POSTGRES_DB=dbmovie
 kubectl get cm db-env -n blockbuster -o jsonpath='{.data}'
 ```
 
+- check the pod with init sql mounted from cm:
+```
+kubectl exec -it -n blockbuster moviedb -- psql -U postgres -d dbmovie
+kubectl exec -it -n blockbuster moviedb -- psql -U movie -d dbmovie
+kubectl logs -n blockbuster moviedb
+```
+
+- persistence with a volume claim
+
+SQL test:
+```
+insert into movie (title, year) values ('Je suis une légende', 2007);
+insert into person (name) values ('Will Smith');
+```
+
+Check if data exists after crash or delete:
+```
+kubectl delete -n blockbuster po moviedb  
+kubectl apply -f .\config\db.deployment.yml  
+kubectl exec -it -n blockbuster moviedb -- psql -U postgres -d dbmovie
+    select * from movie;
+    select * from person;
+
+
+
 
 
 

@@ -21,5 +21,17 @@ spec:
           configMapKeyRef:
             name: db-env
             key: POSTGRES_DB
+    volumeMounts:
+      - mountPath: /docker-entrypoint-initdb.d
+        name: db-sql-init
+      - mountPath: /var/lib/postgresql/data
+        name: db-storage
     # ports:
     #   - containerPort: 5432
+  volumes:
+    - name: db-sql-init
+      configMap: 
+        name: db-sql-init
+    - name: db-storage
+      persistentVolumeClaim:
+        claimName: db-pvc
