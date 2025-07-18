@@ -314,6 +314,8 @@ curl -X 'POST' `
   "duration": 120
 }'
 ```
+
+
 ### Summary service exposition
 ```
 minikube service --all -n blockbuster
@@ -321,12 +323,90 @@ minkube tunnel
 kubectl port-forward service/echosolo-service 8082:8082
 ```
 
-## Secrets
+## Authentication:
+### Secrets (included in k8s)
 ```
 kubectl create secret generic db-secret --from-literal=DB_USER=moviefan  '--from-literal=DB_PASSWORD=qlhdAA#%!32' -n blockbuster
 kubectl get  secret db-secret  -o json -n blockbuster
 kubectl get  secret db-secret  -o jsonpath='{.data}' -n blockbuster
 ```
+
+### KeyCloak
+Auto + config
+
+### Kube login
+Human operator authenticates himself to retrieve credentials
+
+### Other tier solution
+Cloud provider, HashiCorp Vault, OpenBao, OpenTofu, ...
+
+## Fault tolerance
+Simulate traffic:
+```
+# one query
+curl -s -w "[%{remote_ip}] %{http_code} %{time_total}s\n " -G http://localhost:8081/
+
+# 1000 queries by 10 workers
+seq 1000 | xargs -n1 -P10 -I{} curl -s -w "[%{remote_ip}] %{http_code} %{time_total}s\n " -G http://localhost:8081/movies/ -o /dev/null
+```
+
+Crash some pods :
+```
+kubectl get po -n blockbuster
+kubectl -n blockbuster delete po movieapi-86974d8dd6-7wqgj
+kubectl -n blockbuster delete po -l app=movieapi
+kubectl scale deploy movieapi -n blockbuster --replicas=3
+kubectl get po -n blockbuster
+
+# with deploy/rs for db pod
+kubectl -n blockbuster delete po -l app=moviedb
+```
+
+## Rolling update + Rollback
+```
+kubectl set image deploy movieapi movieapi=movieapi:2.0 -n blockbuster
+kubectl rollout status deploy movieapi -n blockbuster
+kubectl get rs -n blockbuster -o wide
+kubectl get po -n blockbuster
+kubectl get po -n blockbuster -l app=movieapi -o jsonpath="{..image}"
+
+kubectl rollout undo deploy movieapi -n blockbuster
+```
+
+NB: rollout can be controlled with a strategy (maxUnavailable, maxSurge, ...)
+
+
+## Volumes
+https://kubernetes.io/docs/concepts/storage/volumes/
+
+```
+kubectl get storageclass
+
+minikube addons list
+minikube addons enable csi-hostpath-driver
+minikube addons enable volumesnapshots
+
+kubectl get storageclass
+
+minikube delete --all
+
+minikube start `
+  --driver=docker `
+  --addons=storage-provisioner,volumesnapshots,csi-hostpath-driver `
+  --extra-config=apiserver.feature-gates=ExpandPersistentVolumes=true ` 
+  --extra-config=controller-manager.feature-gates=ExpandPersistentVolumes=true
+
+kubectl get pv,pvc -n blockbuster
+```
+
+
+
+
+
+
+
+
+
 
 
 

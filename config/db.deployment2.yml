@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: blockbuster
+  name: moviedb
+  labels:
+    app: moviedb
+spec:
+  selector:
+    matchLabels:
+      app: moviedb
+  template:
+    metadata:
+      labels:
+        app: moviedb
+    spec:
+      containers:
+      - name: moviedb
+        image: postgres:17
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        env:
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: DB_PASSWORD
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: DB_USER
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: db-env
+                key: POSTGRES_DB
+        volumeMounts:
+          - mountPath: /docker-entrypoint-initdb.d
+            name: db-sql-init
+          - mountPath: /var/lib/postgresql/data
+            name: db-storage
+        # ports:
+        #   - containerPort: 5432
+      volumes:
+        - name: db-sql-init
+          configMap: 
+            name: db-sql-init
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: db-pvc

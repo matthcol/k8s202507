@@ -10,3 +10,5 @@ spec:
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
+  # storage:
+  #   storageclass: csi-hostpath-driver
