@@ -276,6 +276,46 @@ kubectl run -n blockbuster dbclient --image=postgres:17 -it --rm --restart=Never
     psql -U postgres -p 5432 -d moviedb -h  moviedb
 ```
 
+### Test Api with curl
+Shell:
+```
+curl -X 'POST' \
+  'http://localhost:8081/movies/' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "title": "Je suis une légende 3",
+  "year": 2015,
+  "duration": 120
+}'
+```
+
+```
+curl -X 'POST' \
+  'http://10.96.231.155:8081/movies/' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "title": "Je suis une légende 4",
+  "year": 2015,
+  "duration": 120
+}'
+```
+
+Powershell:
+```
+curl -X 'POST' `
+  'http://localhost:8081/movies/' `
+  -H 'accept: application/json' `
+  -H 'Content-Type: application/json' `
+  -d '{
+  "title": "Je suis une légende 3",
+  "year": 2015,
+  "duration": 120
+}'
+```
+
+
 
 
 
