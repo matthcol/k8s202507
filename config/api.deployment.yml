@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: blockbuster
+  name: movieapi
+spec:
+  selector:
+    matchLabels:
+      app: movieapi
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: movieapi
+    spec:
+      containers:
+      - name: movieapi
+        image: movieapi:1.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "125m"
+        env:
+          - name: DB_URL
+            value: postgresql+psycopg2://postgres:mysuperpassword@10.244.0.149:5432/dbmovie
+

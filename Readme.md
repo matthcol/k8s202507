@@ -225,6 +225,8 @@ kubectl create cm db-env2 -n blockbuster --from-literal POSTGRES_DB=dbmovie
 kubectl get cm db-env -n blockbuster -o jsonpath='{.data}'
 ```
 
+NB: other possibility config map with YAML file
+
 - check the pod with init sql mounted from cm:
 ```
 kubectl exec -it -n blockbuster moviedb -- psql -U postgres -d dbmovie
@@ -247,6 +249,19 @@ kubectl apply -f .\config\db.deployment.yml
 kubectl exec -it -n blockbuster moviedb -- psql -U postgres -d dbmovie
     select * from movie;
     select * from person;
+```
+
+### API
+
+- Build image locally (dind):
+```
+docker build api-v1.0 -t movieapi:1.0
+docker build api-v2.0 -t movieapi:2.0
+```
+
+- Deploy api
+
+
 
 
 
