@@ -314,7 +314,12 @@ curl -X 'POST' `
   "duration": 120
 }'
 ```
-
+### Summary service exposition
+```
+minikube service --all -n blockbuster
+minkube tunnel
+kubectl port-forward service/echosolo-service 8082:8082
+```
 
 
 
