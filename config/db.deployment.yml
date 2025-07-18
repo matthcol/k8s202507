@@ -14,8 +14,18 @@ spec:
         memory: "128Mi"
         cpu: "500m"
     env:
+      # - name: POSTGRES_PASSWORD
+      #   value: mysuperpassword
       - name: POSTGRES_PASSWORD
-        value: mysuperpassword
+        valueFrom:
+          secretKeyRef:
+            name: db-secret
+            key: DB_PASSWORD
+      - name: POSTGRES_USER
+        valueFrom:
+          secretKeyRef:
+            name: db-secret
+            key: DB_USER
       - name: POSTGRES_DB
         valueFrom:
           configMapKeyRef:

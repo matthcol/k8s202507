@@ -270,7 +270,7 @@ docker build api-v2.0 -t movieapi:2.0
 Use a temporary container with a db client:
 
 ```
-kubectl run -n blockbuster dbclient --image=postgres:17 -it --rm --restart=Never -- psql -U postgres -p 5432 -d moviedb -h  moviedb
+kubectl run -n blockbuster dbclient --image=postgres:17 -it --rm --restart=Never -- psql -U moviefan -p 5432 -d moviedb -h  moviedb
 
 kubectl run -n blockbuster dbclient --image=postgres:17 -it --rm --restart=Never -- bash
     psql -U postgres -p 5432 -d moviedb -h  moviedb
@@ -320,6 +320,14 @@ minikube service --all -n blockbuster
 minkube tunnel
 kubectl port-forward service/echosolo-service 8082:8082
 ```
+
+## Secrets
+```
+kubectl create secret generic db-secret --from-literal=DB_USER=moviefan  '--from-literal=DB_PASSWORD=qlhdAA#%!32' -n blockbuster
+kubectl get  secret db-secret  -o json -n blockbuster
+kubectl get  secret db-secret  -o jsonpath='{.data}' -n blockbuster
+```
+
 
 
 
