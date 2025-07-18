@@ -23,6 +23,25 @@ spec:
             memory: "128Mi"
             cpu: "125m"
         env:
+          - name: DB_HOST
+            value: "moviedb"
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: db-env
+                key: POSTGRES_DB
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: DB_USER
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: DB_PASSWORD
           - name: DB_URL
-            value: postgresql+psycopg2://XXXX:YYYYY@moviedb:5432/ZZZZZ
+            value: "postgresql+psycopg2://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
 
