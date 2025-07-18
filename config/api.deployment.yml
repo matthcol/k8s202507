@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   namespace: blockbuster
   name: movieapi
+  labels:
+    app: movieapi
 spec:
   selector:
     matchLabels:
@@ -22,5 +24,5 @@ spec:
             cpu: "125m"
         env:
           - name: DB_URL
-            value: postgresql+psycopg2://postgres:mysuperpassword@10.244.0.149:5432/dbmovie
+            value: postgresql+psycopg2://postgres:mysuperpassword@moviedb:5432/moviedb
 

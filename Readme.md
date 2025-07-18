@@ -251,6 +251,11 @@ kubectl exec -it -n blockbuster moviedb -- psql -U postgres -d dbmovie
     select * from person;
 ```
 
+After adding service layer:
+```
+kubectl get svc,deploy,rs,pod -n blockbuster -l app=moviedb
+```
+
 ### API
 
 - Build image locally (dind):
@@ -260,6 +265,17 @@ docker build api-v2.0 -t movieapi:2.0
 ```
 
 - Deploy api
+
+### Diagnostic with oneshot container client
+Use a temporary container with a db client:
+
+```
+kubectl run -n blockbuster dbclient --image=postgres:17 -it --rm --restart=Never -- psql -U postgres -p 5432 -d moviedb -h  moviedb
+
+kubectl run -n blockbuster dbclient --image=postgres:17 -it --rm --restart=Never -- bash
+    psql -U postgres -p 5432 -d moviedb -h  moviedb
+```
+
 
 
 
